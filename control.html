@@ -1,0 +1,54 @@
+<script>
+window.onload = function()
+{
+    document.body.style.background = "black";
+    for (var i = 0; i < 100; ++i) { make_fader(i); }
+    document.body.appendChild(document.createElement("br"));
+    for (var i = 100; i < 200; ++i) { make_fader(i); }
+    document.body.appendChild(document.createElement("br"));
+    for (var i = 200; i < 300; ++i) { make_fader(i); }
+    document.body.appendChild(document.createElement("br"));
+    for (var i = 300; i < 400; ++i) { make_fader(i); }
+    document.body.appendChild(document.createElement("br"));
+    for (var i = 400; i < 500; ++i) { make_fader(i); }
+    document.body.appendChild(document.createElement("br"));
+    for (var i = 500; i < 512; ++i) { make_fader(i); }
+    data = "";
+    for (var i = 0; i < 512; ++i) { data += hex(parseInt((document.querySelector("#fader-" + i).value * 255.0) / 100.0)); }
+    send_data();
+}
+var make_fader = function(i)
+{
+    var fader = document.createElement("input");
+    fader.setAttribute("id", "fader-" + i);
+    fader.setAttribute("type", "range");
+    fader.setAttribute("step", "0.000001");
+    fader.setAttribute("orient", "vertical");
+    fader.setAttribute("value", ((i % 12 == 8) || (i % 12 == 9)) ? 50 : 0.0);
+    fader.setAttribute("oninput", "fader(event, this);");
+    fader.style = "appearance: slider-vertical; -webkit-appearance: slider-vertical; width: 12px; height: 300px;";
+    document.body.appendChild(fader);
+}
+var fader = function(event, sender)
+{
+    var idx = parseInt(sender.id.split("-")[1]);
+    var value = hex(parseInt((sender.value * 255.0) / 100.0));
+    var tmp = data;
+    data = tmp.substring(0, idx * 2) + value + tmp.substring((idx * 2) + 2);
+    send_data();
+}
+var hex = function(value)
+{
+    var str = "";
+    var hexmap = "0123456789ABCDEF";
+    var hi = parseInt((value >> 4) & 0xF);
+    var lo = parseInt(value & 0xF);
+    return hexmap[hi] + hexmap[lo];
+}
+var send_data = function()
+{
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("POST", "./", true);
+    xmlhttp.send(data);
+}
+</script>
